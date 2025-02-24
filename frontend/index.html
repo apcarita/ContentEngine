@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AI Story Video Maker</title>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<header>
+		<div class="header-left">
+			<h2>Brain Rot Industries</h2>
+			<button class="home-button" onclick="scrollToTop()">Home</button>
+		</div>
+		<div class="header-right">
+			<button class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+		</div>
+	</header>
+	<!-- New container for main and always present side panel -->
+	<div class="content-container">
+		<main>
+			<h1>Video To Rot</h1>
+			<textarea placeholder="Enter your story or information here..."></textarea>
+			<div id="response-container" class="hidden">
+				<textarea id="output" readonly></textarea>
+			</div>
+			<br>
+			<button id="submit-btn">Create Video</button>
+		</main>
+		<!-- Always present side panel with loader (initially hidden via CSS) -->
+		<div class="side-panel">
+			<div class="loader"></div>
+			<p class="loader-text">creating video...</p>
+		</div>
+	</div>
+	<script src="function.js"></script>
+</body>
+</html>

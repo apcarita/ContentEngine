@@ -1,0 +1,206 @@
+:root {
+	--bg-color: #121212;
+	--text-color: #e0e0e0;
+	--accent-color: #dbaf00;
+	--input-bg: #1e1e1e;
+	--border-radius: 5px;
+}
+.light {
+	--bg-color: #f0f0f0;
+	--text-color: #121212;
+	--accent-color: #007acc;
+	--input-bg: #ffffff;
+}
+body {
+	background: var(--bg-color);
+	color: var(--text-color);
+	font-family: 'Roboto', sans-serif;
+	text-align: center;
+	padding: 50px;
+	transition: background 0.5s, color 0.5s;
+	margin: 0;
+}
+header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 50px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	background-color: var(--bg-color);
+	z-index: 1000;
+	border-bottom: 1px solid var(--accent-color);
+}
+header .header-left,
+header .header-right {
+    display: flex;
+    align-items: center;
+}
+header .header-left {
+    display: flex;
+    align-items: center;
+}
+.header-left h2 {
+	margin: 0;
+	font-size: 1.5em;
+}
+.header-left .home-button {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font: inherit;
+    margin-left: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.header-right button {
+	margin-left: 10px;
+}
+header .header-right {
+    display: flex;
+    align-items: center;
+}
+main {
+	margin-top: 80px; /* offset for fixed header */
+	flex: 1; /* allow main to take available space */
+}
+h1 {
+	font-size: 3em;
+	margin-bottom: 20px;
+}
+textarea {
+	width: 80%;
+	height: 300px;
+	font-size: 1.2em;
+	padding: 10px;
+	background: var(--input-bg);
+	border: none;
+	border-radius: var(--border-radius);
+	resize: none;
+	color: var(--text-color);
+}
+button, .theme-toggle {
+	margin-top: 20px;
+	padding: 10px 20px;
+	font-size: 1em;
+	border: none;
+	border-radius: var(--border-radius);
+	background-color: var(--accent-color);
+	color: var(--bg-color);
+	cursor: pointer;
+	transition: background 0.3s, color 0.3s;
+}
+.theme-toggle {
+	margin-left: 10px;
+    display: flex;
+    align-items: center;
+}
+
+/* Override margin for header buttons */
+header .home-button,
+header .theme-toggle {
+    margin-top: 0;
+}
+
+.content-container {
+	display: flex;
+}
+
+/* New side-panel styles */
+.side-panel {
+	width: 0;
+	overflow: hidden;
+	background: var(--input-bg);
+	transition: width 1s ease-in-out;
+	margin-top: 80px;
+	display: flex;
+  	align-items: top;
+  	justify-content: center;
+	flex-direction: column; /* Stack items vertically */
+	height: 90vh;
+}
+
+/* Loader animation styles */
+/* HTML: <div class="loader"></div> */
+.loader {
+	width: 75px;
+	aspect-ratio: 1;
+	background: 
+	  linear-gradient(45deg, var(--accent-color) 50%, #0000 0),
+	  linear-gradient(45deg, #0000 50%, var(--accent-color) 0),
+	  linear-gradient(-45deg, var(--accent-color) 50%, #0000 0),
+	  linear-gradient(-45deg, #0000 50%, var(--accent-color) 0),
+	  linear-gradient(#554236 0 0);
+	background-size: 50% 50%;
+	background-repeat: no-repeat;
+	animation: l18 1.5s infinite;
+	display: flex;
+	margin: 0 auto;
+}
+@keyframes l18{
+	0%   {background-position:50% 50%,50% 50%,50%  50% ,50% 50%,50% 50%}
+	25%  {background-position:0  100%,100%  0,50%  50% ,50% 50%,50% 50%}
+	50%  {background-position:0  100%,100%  0,100% 100%,0   0  ,50% 50%}
+	75%  {background-position:50% 50%,50% 50%,100% 100%,0   0  ,50% 50%}
+	100% {background-position:50% 50%,50% 50%,50%  50% ,50% 50%,50% 50%}
+}
+
+.loader-text {
+	color: lightgrey;
+	margin-top: 5vh;
+	font-size: 16px;
+	text-align: center;
+	width: 100%; /* Ensure it takes the full width of its container */
+	font-weight: bold;
+}
+
+.light .header-left .home-button {
+    color: #000000;
+}
+
+.light .loader-text {
+    color: #000000;
+}
+
+#response-container {
+    width: 80%;
+    margin: 20px auto;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#response-container.hidden {
+    opacity: 0;
+    display: none;
+}
+
+#output {
+    width: 100%;
+    height: 150px;
+    margin-top: 20px;
+    background: transparent;
+    color: #a0a0a0;
+    border: none;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    white-space: pre-wrap;
+    animation: typing 3s steps(60, end);
+}
+
+@keyframes typing {
+    from { 
+        clip-path: inset(0 100% 0 0);
+    }
+    to { 
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+button:disabled {
+    background-color: #808080;
+    cursor: not-allowed;
+    opacity: 0.6;
+}

@@ -1,0 +1,32 @@
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Environment files
+.env
+
+# Virtual environments
+venv/
+env/
+
+# macOS system files
+.DS_Store
+
+# Large media files / generated files that shouldn't be in the repo
+*.mp3
+*.mp4
+
+# Ignore generated frames and media directories
+frames/
+Music/
+Rot/
+
+# Other files you likely don't want to commit
+*.log
+tmp/
+*.png
+*.mp4
+frames/
+
+# End of .gitignore
+backend/Google.json
