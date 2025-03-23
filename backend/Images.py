@@ -1,7 +1,8 @@
 import sys
+import time
+import os
 from google import genai
 import dotenv
-import os
 from together import Together
 import base64
 import requests
@@ -10,14 +11,14 @@ import concurrent.futures
 from datetime import datetime
 from google.cloud import texttospeech
 import assemblyai as aai
-from moviepy import (AudioFileClip, ImageClip, concatenate_videoclips,
-                            CompositeAudioClip, VideoFileClip, clips_array, CompositeVideoClip, TextClip)
+from moviepy.editor import AudioFileClip, ImageClip, concatenate_videoclips, CompositeAudioClip, VideoFileClip, clips_array, CompositeVideoClip, TextClip
+import re
+import tempfile
+import shutil
 
 def get_image_promt(story):
     story = story.upper()
     print(f"Processing story: {story}", flush=True)
-    dotenv.load_dotenv()
-
     prompt_text = f"""
    Create a concise image generation prompt (around 300-400 characters) based on the following video script text. The prompt should visualize the essence of the text for image generation purposes.
 
@@ -90,31 +91,131 @@ def testimages():
     return image_folder
 
 def cheapSpeak(input_text, output_path):
+    # Set explicit path to the credentials file
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath("backend/Google.json")
+    
     client = texttospeech.TextToSpeechClient()
 
-    input_text = texttospeech.SynthesisInput(text=input_text)
-
-    # Note: the voice can also be specified by name.
-    # Names of voices can be retrieved with client.list_voices().
-    voice = texttospeech.VoiceSelectionParams(
-        language_code="en-US",
-        #name="en-US-Journey-F",
-        name='en-US-Wavenet-A'
-    )
-
-    audio_config = texttospeech.AudioConfig(
-     audio_encoding=texttospeech.AudioEncoding.LINEAR16,
-     speaking_rate=1.3
-    )
-
-    response = client.synthesize_speech(
-        request={"input": input_text, "voice": voice, "audio_config": audio_config}
-    )
-
-    with open(output_path, "wb") as out:
-        out.write(response.audio_content)
-        print(f'{output_path}')
+    # Google TTS has a limit of 5000 bytes per request
+    # Split the text into smaller chunks
+    def split_text(text, max_length=4000):
+        # Split by sentences to keep natural pauses
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        chunks = []
+        current_chunk = ""
+        
+        for sentence in sentences:
+            # If adding this sentence would exceed max_length, start a new chunk
+            if len(current_chunk) + len(sentence) > max_length:
+                if current_chunk:  # Don't add empty chunks
+                    chunks.append(current_chunk)
+                current_chunk = sentence
+            else:
+                if current_chunk:
+                    current_chunk += " " + sentence
+                else:
+                    current_chunk = sentence
+        
+        # Add the last chunk if it's not empty
+        if current_chunk:
+            chunks.append(current_chunk)
+            
+        return chunks
+    
+    # Split the text into chunks
+    chunks = split_text(input_text)
+    print(f"Split text into {len(chunks)} chunks for TTS processing", flush=True)
+    
+    # Create temporary directory for audio chunks
+    temp_dir = tempfile.mkdtemp()
+    
+    # Process each chunk and save to temporary files
+    temp_files = []
+    for i, chunk in enumerate(chunks):
+        chunk_file = os.path.join(temp_dir, f"chunk_{i}.wav")
+        temp_files.append(chunk_file)
+        
+        # Process this chunk
+        chunk_input = texttospeech.SynthesisInput(text=chunk)
+        
+        voice = texttospeech.VoiceSelectionParams(
+            language_code="en-US",
+            name='en-US-Wavenet-A'
+        )
+        
+        audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.MP3,  # Changed to MP3 for direct output
+            speaking_rate=1.3
+        )
+        
+        try:
+            response = client.synthesize_speech(
+                request={"input": chunk_input, "voice": voice, "audio_config": audio_config}
+            )
+            
+            # If this is the first chunk, write directly to output
+            if i == 0:
+                with open(output_path, "wb") as out:
+                    out.write(response.audio_content)
+                print(f"Created initial audio file", flush=True)
+            else:
+                # For subsequent chunks, create temporary files
+                with open(chunk_file, "wb") as out:
+                    out.write(response.audio_content)
+                print(f"Created chunk {i} audio file", flush=True)
+        except Exception as e:
+            print(f"Error processing chunk {i}: {str(e)}", flush=True)
+            # If a chunk fails, continue with the others
+            continue
+    
+    # If we have more than one chunk, concatenate using moviepy
+    if len(chunks) > 1:
+        try:
+            # Use the first file as base
+            audio_clips = [AudioFileClip(output_path)]
+            
+            # Add all other chunks
+            for i in range(1, len(chunks)):
+                temp_file = temp_files[i-1]  # -1 because we start from index 1
+                if os.path.exists(temp_file):
+                    audio_clips.append(AudioFileClip(temp_file))
+            
+            # Concatenate all audio clips
+            final_audio = concatenate_audioclips(audio_clips)
+            
+            # Write to output path
+            final_audio.write_audiofile(output_path, fps=44100, nbytes=2, buffersize=2000)
+            
+            # Close all clips to free resources
+            for clip in audio_clips:
+                clip.close()
+                
+        except Exception as e:
+            print(f"Error concatenating audio: {str(e)}", flush=True)
+            print(f"Using first chunk only for audio", flush=True)
+    
+    # Clean up temporary files
+    shutil.rmtree(temp_dir)
+    
+    print(f'Created audio file: {output_path}', flush=True)
     return output_path
+
+def concatenate_audioclips(clips):
+    """Concatenate audio clips together"""
+    durations = [c.duration for c in clips]
+    tt = sum(durations)
+    
+    def make_frame(t):
+        d = 0
+        for i, clip in enumerate(clips):
+            if d <= t < d + durations[i]:
+                return clip.make_frame(t - d)
+            d += durations[i]
+        return 0 * clips[0].make_frame(0)
+    
+    result = AudioFileClip(make_frame=make_frame, duration=tt)
+    result.fps = max([clip.fps for clip in clips if hasattr(clip, 'fps')] or [44100])
+    return result
 
 def transcribe(audio_path, srt_output_path):
     aai.settings.api_key = os.getenv('ASSEMBLYAI_API_KEY')
@@ -137,6 +238,8 @@ def transcribe(audio_path, srt_output_path):
     return srt_output_path
 
 if __name__ == "__main__":
+    dotenv.load_dotenv()
+
     if len(sys.argv) > 1:
         story = sys.argv[1]
         image_promt = get_image_promt(story)
@@ -144,31 +247,26 @@ if __name__ == "__main__":
         base_dir = "frames"
         # Use hyphens instead of colons to avoid invalid filename characters
         current_time = datetime.now().strftime("%m_%d_%H-%M-%S")
-       #directory = os.path.join(base_dir, current_time)
-       # os.makedirs(directory, exist_ok=True)
-
+        directory = os.path.join(base_dir, current_time)
+        
+        # Ensure the directory exists before generating images
+        os.makedirs(directory, exist_ok=True)
+        
         # Generate images synchronously and wait for completion
-       # directory = gen_art(image_promt, directory)
+        directory = gen_art(image_promt, directory)
 
         # Generate audio synchronously
-        #audio_file = cheapSpeak(story, f"{directory}/story.mp3")
+        audio_file = cheapSpeak(story, f"{directory}/story.mp3")
 
         # Transcribe audio synchronously
-       # srt_file = transcribe(audio_file, f"{directory}/story.srt")
+        srt_file = transcribe(audio_file, f"{directory}/story.srt")
 
+        # Make sure all files are written to disk before returning
+        time.sleep(1)
 
-        time.sleep(5)
-        directory = 'frames/02_24_13-17-28'
-
-
-
-        while not os.path.exists(directory):
-            time.sleep(0.5)
-
-
-        print(f"Processing complete. Output directory: {directory}")
-        print(directory)
-
+        # Use absolute path to ensure the directory can be found by Editor.py
+        abs_directory = os.path.abspath(directory)
+        print(abs_directory)
             
     else:
         print("ERROR No story provided.")

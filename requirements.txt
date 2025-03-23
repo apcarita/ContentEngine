@@ -6,3 +6,6 @@ pillow>=11.1.0,<12.0.0
 together==1.4.1
 psutil==5.9.5
 moviepy
+google-cloud-texttospeech
+assemblyai
+pysrt

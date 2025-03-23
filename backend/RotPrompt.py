@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
 
     **Output Format:**
-    **Video Script Output (50-80 words, brain rot style, no emojis, educational, optimistic, story-driven, using dictionary words, especially \"af/asf\"). Return just the story- not title or lable:**
+    **Video Script Output (50-80 words, brain rot style, no emojis, educational, optimistic, story-driven, using dictionary words, especially \"af/asf\"). Something that can be spoken in under 60 seconds. Return just the story- not title or lable:**
     """
         client = genai.Client(api_key=os.getenv("GOOGLE_AI"))
         response = client.models.generate_content(
