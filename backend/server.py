@@ -353,13 +353,18 @@ def create_story():
             
             logger.debug(f"Starting image monitoring for job {job_id} in directory {temp_dir}")
             
+            # Initially count images to make sure we're not starting with zero when there might be existing images
+            initial_count = count_images_in_directory(temp_dir)
+            if initial_count > 0:
+                jobs[job_id]["image_count"] = initial_count
+                logger.debug(f"Initial image count for job {job_id}: {initial_count} images")
+            
             # Monitor image count while images are being generated
             while jobs[job_id].get("images_status") == "processing" or jobs[job_id].get("images_status") == "pending":
                 directory = jobs[job_id].get("directory")
                 if directory and os.path.isdir(directory):
-                    # Count all PNG, JPG, JPEG files in the directory
-                    current_count = sum(1 for file in os.listdir(directory) 
-                                       if file.lower().endswith(('.png', '.jpg', '.jpeg')))
+                    # Count all PNG, JPG, JPEG files in the directory using our helper function
+                    current_count = count_images_in_directory(directory)
                     
                     # Only update if count has changed to avoid unnecessary updates
                     if current_count != jobs[job_id].get("image_count", 0):
@@ -371,8 +376,7 @@ def create_story():
             # Final check after processing completes
             directory = jobs[job_id].get("directory")
             if directory and os.path.isdir(directory):
-                final_count = sum(1 for file in os.listdir(directory) 
-                                if file.lower().endswith(('.png', '.jpg', '.jpeg')))
+                final_count = count_images_in_directory(directory)
                 jobs[job_id]["image_count"] = final_count
                 logger.debug(f"Final image count for job {job_id}: {final_count} images")
         
@@ -406,6 +410,16 @@ def get_story_status(job_id):
         return api_response(False, error="Job not found", status_code=404)
     
     job = jobs[job_id]
+    
+    # Check the current image count in the directory before sending the status
+    directory = job.get("directory")
+    if directory and os.path.isdir(directory):
+        current_image_count = count_images_in_directory(directory)
+        # Only update if count has changed to avoid unnecessary updates
+        if current_image_count != job.get("image_count", 0):
+            job["image_count"] = current_image_count
+            logger.debug(f"Updated image count for job {job_id} in status check: {current_image_count} images")
+    
     return api_response(True, data=job)
 
 

@@ -209,9 +209,11 @@ function startStatusPolling() {
                 
                 // Check if image count has changed
                 const currentImageCount = data.data.image_count || 0;
+                
+                // Only log if the count has actually changed to avoid cluttering the console
                 if (currentImageCount !== previousImageCount) {
-                    previousImageCount = currentImageCount;
                     console.log(`Image count updated: ${currentImageCount}`);
+                    previousImageCount = currentImageCount;
                 }
                 
                 updateStatusDisplay(data.data, loaderText);
@@ -234,7 +236,7 @@ function startStatusPolling() {
                 if (data.data.status === 'processing_video') {
                     pollCount++;
                     if (pollCount > 15 && pollCount % 5 === 0) { // After 30 seconds, give updates
-                        loaderText.innerText = `Still processing video... (${Math.floor(pollCount*2/60)} minute${pollCount*2/60 >= 2 ? 's' : ''})`;
+                        loaderText.innerText = `Still processing video... (${Math.floor(pollCount/60)} minute${pollCount/60 >= 2 ? 's' : ''})`;
                     }
                 }
             })
