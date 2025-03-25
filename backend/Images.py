@@ -16,17 +16,18 @@ import re
 import tempfile
 import shutil
 
-def get_image_promt(story):
+def get_image_promt(story, duration=30):
     story = story.upper()
     print(f"Processing story: {story}", flush=True)
     prompt_text = f"""
-   Create a concise image generation prompt (around 300-400 characters) based on the following video script text. The prompt should visualize the essence of the text for image generation purposes.
+   Create a concise image generation prompt (around 300-400 characters) based on the following video script text. The prompt should visualize the essence of the text for image generation purposes for a {duration}-second video.
 
 Think visually and focus on clear representation. Consider:
 
 * **Visual Keywords:** Extract the key nouns, verbs, and adjectives from the script text that are visually representable.  Focus on the core subjects, actions, and descriptive elements. Avoid text overlays, it is ok to have text in the image, just not as an overlay.
 * **Story Elements:** Identify the main subject or event being described in the text and ensure the image prompt captures this central theme.  The image should visually summarize the text's narrative or message.
 * **Clear and Understandable Imagery:**  The image prompt should aim for imagery that is easily understood and directly relates to the text. Avoid overly abstract or obscure concepts unless they are explicitly present in the script.
+* **Video Pacing:** Create images that will work well for a {duration}-second video sequence.
 * **Concise Language:** Use clear and concise language in the image prompt. Focus on essential details and avoid unnecessary jargon or overly complex descriptions.
 
 **Video Script Text:**
@@ -242,7 +243,18 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         story = sys.argv[1]
-        image_promt = get_image_promt(story)
+        
+        # Get duration parameter if provided, default to 30 seconds
+        duration = 30
+        if len(sys.argv) > 2:
+            try:
+                duration = int(sys.argv[2])
+            except ValueError:
+                print("Invalid duration value, using default of 30 seconds")
+                
+        print(f"Creating video with duration: {duration} seconds")
+        
+        image_promt = get_image_promt(story, duration)
         
         base_dir = "frames"
         # Use hyphens instead of colons to avoid invalid filename characters
@@ -266,6 +278,11 @@ if __name__ == "__main__":
 
         # Use absolute path to ensure the directory can be found by Editor.py
         abs_directory = os.path.abspath(directory)
+        
+        # Save duration to a file in the directory for FfmpegEditor.py to use
+        with open(f"{directory}/duration.txt", "w") as f:
+            f.write(str(duration))
+            
         print(abs_directory)
             
     else:

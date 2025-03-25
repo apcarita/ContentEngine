@@ -25,13 +25,60 @@
 			<div id="response-container" class="hidden">
 				<textarea id="output" readonly></textarea>
 			</div>
-			<br>
+			
+			<div class="controls-container">
+				<div class="slider-container">
+					<input type="range" id="duration-slider" min="10" max="60" value="30" class="slider">
+					<div class="duration-display">
+						<div class="duration-value-container">
+							<span id="duration-value">30</span><span>s</span>
+						</div>
+						<div class="duration-label">Duration</div>
+					</div>
+					<div class="style-buttons">
+						<button class="style-btn active" data-style="brain-rot">Brain Rot</button>
+						<button class="style-btn" data-style="educational">Educational</button>
+						<button class="style-btn" data-style="scary">Scary</button>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Added new row for dropdowns beneath the slider -->
+			<div class="dropdowns-row">
+				<div class="form-group" id="music-dropdown">
+					<label for="musicSelector">Background Music:</label>
+					<select id="musicSelector">
+						<option value="none">None</option>
+						<!-- Options will be populated by JavaScript -->
+					</select>
+				</div>
+				<div class="form-group" id="video-dropdown">
+					<label for="videoSelector">Background Video:</label>
+					<select id="videoSelector">
+						<option value="minecraft.mp4">Minecraft</option>
+						<option value="fortnite.mp4">Fortnite</option>
+						<option value="roblox.mp4">Roblox</option>
+						<option value="nature.mp4">Nature</option>
+						<option value="city.mp4">City</option>
+					</select>
+				</div>
+			</div>
+			
 			<button id="submit-btn">Create Video</button>
 		</main>
-		<!-- Always present side panel with loader (initially hidden via CSS) -->
-		<div class="side-panel">
-			<div class="loader"></div>
-			<p class="loader-text">creating video...</p>
+		<!-- Always present side panel that's visible from the start -->
+		<div class="side-panel visible">
+			<div class="loader hidden"></div>
+			<p class="loader-text hidden">creating video...</p>
+			<div id="video-container">
+				<div id="ready-message">Ready</div>
+				<div id="video-wrapper" class="hidden">
+					<video id="result-video" controls></video>
+					<div class="video-controls">
+						<button id="download-video">Download Video</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<script src="function.js"></script>

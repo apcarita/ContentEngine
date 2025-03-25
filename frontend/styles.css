@@ -109,7 +109,7 @@ header .theme-toggle {
 	display: flex;
 }
 
-/* New side-panel styles */
+/* Updated side-panel styles to be visible by default */
 .side-panel {
 	width: 0;
 	overflow: hidden;
@@ -117,14 +117,18 @@ header .theme-toggle {
 	transition: width 1s ease-in-out;
 	margin-top: 80px;
 	display: flex;
-  	align-items: top;
+  	align-items: center;
   	justify-content: center;
 	flex-direction: column; /* Stack items vertically */
 	height: 90vh;
+	position: relative; /* Add relative positioning */
 }
 
-/* Loader animation styles */
-/* HTML: <div class="loader"></div> */
+.side-panel.visible {
+    width: 30%; /* Make it visible by default */
+}
+
+/* Loader animation styles positioned in the center */
 .loader {
 	width: 75px;
 	aspect-ratio: 1;
@@ -137,8 +141,11 @@ header .theme-toggle {
 	background-size: 50% 50%;
 	background-repeat: no-repeat;
 	animation: l18 1.5s infinite;
-	display: flex;
-	margin: 0 auto;
+	position: absolute; /* Position absolutely */
+	top: 50%; /* Center vertically */
+	left: 50%; /* Center horizontally */
+	transform: translate(-50%, -50%); /* Center precisely */
+	z-index: 10; /* Ensure it appears above other content */
 }
 @keyframes l18{
 	0%   {background-position:50% 50%,50% 50%,50%  50% ,50% 50%,50% 50%}
@@ -148,6 +155,11 @@ header .theme-toggle {
 	100% {background-position:50% 50%,50% 50%,50%  50% ,50% 50%,50% 50%}
 }
 
+.loader.hidden,
+.loader-text.hidden {
+    display: none;
+}
+
 .loader-text {
 	color: lightgrey;
 	margin-top: 5vh;
@@ -155,6 +167,11 @@ header .theme-toggle {
 	text-align: center;
 	width: 100%; /* Ensure it takes the full width of its container */
 	font-weight: bold;
+	position: absolute; /* Position absolutely */
+	top: 60%; /* Position below the loader */
+	left: 0;
+	right: 0;
+	z-index: 10; /* Ensure it appears above other content */
 }
 
 .light .header-left .home-button {
@@ -204,3 +221,291 @@ button:disabled {
     cursor: not-allowed;
     opacity: 0.6;
 }
+
+/* Video container styles */
+#video-container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+#video-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#video-wrapper.hidden {
+    display: none;
+}
+
+#result-video {
+    width: 100%;
+    height: calc(100% - 60px); /* Account for controls height */
+    border-radius: 0;
+    background-color: #000;
+    object-fit: contain;
+}
+
+.video-controls {
+    width: 100%;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    background-color: var(--bg-color);
+}
+
+#download-video {
+    margin: 0;
+    padding: 8px 15px;
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#download-video:hover {
+    background-color: #c09800; /* Darker shade of accent color */
+}
+
+#download-video.hidden {
+    display: none;
+}
+
+/* Updated controls layout */
+.controls-container {
+    width: 80%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slider-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Adjust the slider width to accommodate the duration display */
+.slider {
+    -webkit-appearance: none;
+    width: 40%;
+    height: 8px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.8;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    cursor: pointer;
+}
+
+/* Diamond slider thumb */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent-color);
+    cursor: pointer;
+    transform: rotate(45deg); /* Transform to diamond shape */
+    border: 2px solid #d3d3d3; /* Match the slider color */
+}
+
+.slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--accent-color);
+    cursor: pointer;
+    transform: rotate(45deg); /* Transform to diamond shape */
+    border: 2px solid #d3d3d3; /* Match the slider color */
+}
+
+/* Style buttons - adjust width to accommodate duration display */
+.style-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    width: 40%;
+}
+
+/* Style buttons */
+.style-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-left: 20px;
+    width: 45%;
+}
+
+.style-btn {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
+    border-radius: var(--border-radius);
+    padding: 5px 15px;
+    font-size: 0.9em;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.style-btn:hover:not(.inactive) {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    border-color: var(--accent-color);
+}
+
+.style-btn.active {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    border-color: var(--accent-color);
+    opacity: 1;
+}
+
+.style-btn.inactive {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Remove old duration buttons styles */
+.duration-buttons {
+    display: none;
+}
+.duration-btn {
+    display: none;
+}
+
+/* Remove old slider styles that aren't needed anymore */
+.slider-with-labels,
+.slider-track,
+.slider-labels,
+slider-label,
+.slider-ticks {
+    display: none;
+}
+
+/* Ready message styling - adjust position */
+#ready-message {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent-color);
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    border: 2px dashed var(--accent-color);
+    border-radius: var(--border-radius);
+    background-color: rgba(219, 175, 0, 0.1); /* Semi-transparent accent color */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    z-index: 5; /* Lower than the loader */
+}
+
+/* Duration display styling */
+.duration-display {
+    font-size: 28px;
+    font-weight: bold;
+    color: #d3d3d3;
+    margin: 0 20px;
+    min-width: 70px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.duration-value-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.duration-label {
+    font-size: 14px;
+    font-weight: normal;
+    color: var(--text-color);
+    margin-top: 4px;
+}
+
+/* Added styles for the background music dropdown */
+#music-dropdown {
+    margin-top: 15px;
+}
+
+/* Dropdown row styling */
+.dropdowns-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px auto;
+    width: 80%;
+}
+
+/* Updated form-group styling */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+}
+
+/* Label styling */
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-align: left;
+}
+
+/* Styled dropdowns */
+.form-group select {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background-color: #2a2a2a;
+    color: var(--text-color);
+    font-size: 1em;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: all 0.3s ease;
+}
+
+.light .form-group select {
+    background-color: #e0e0e0;
+    color: #121212;
+    border-color: #999;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+}
+
+.form-group select:hover {
+    border-color: var(--accent-color);
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(219, 175, 0, 0.2);
+}
+
+/* Removed outdated music-dropdown styles */
