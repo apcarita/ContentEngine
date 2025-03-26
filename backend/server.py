@@ -544,4 +544,5 @@ def list_background_videos():
 
 if __name__ == '__main__':
     dotenv.load_dotenv()  # ensure env is loaded
-    app.run(debug=True, port=8000, use_reloader=True)
+    # Updated to bind to 0.0.0.0 so external devices can access the server
+    app.run(debug=True, host='0.0.0.0', port=8000, use_reloader=True)
