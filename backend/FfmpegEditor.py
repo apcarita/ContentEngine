@@ -126,7 +126,7 @@ def EditVid(directory=None, music=None, video=None):
                f'[scaled_video][scaled_images]vstack=inputs=2[stacked];'  # Stack them vertically
                f'[stacked]pad=iw:ih+mod(ih\,2):0:0[temp];'  # Pad height to make it even if needed
                f'[temp]ass={ass_file}:fontsdir={font_dir}[v];'  # Apply subtitles with font directory
-               f'[3:a]volume=0.3[quietbg];'  # Background music volume
+               f'[3:a]volume=0.1[quietbg];'  # Background music volume
                f'[2:a][quietbg]amix=inputs=2:duration=first[a]" '  # Mix audio
                f'-map "[v]" -map "[a]" -t {duration} {output_file}')
                

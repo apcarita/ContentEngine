@@ -13,8 +13,8 @@ import json
 from datetime import datetime
 
 app = Flask(__name__)
-# Update CORS to be more permissive - allow requests from any localhost port
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://localhost:*", "http://127.0.0.1:*"]}})
+# Allow all origins for CORS to prevent blocking local requests
+CORS(app)  # Updated to allow all origins
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
